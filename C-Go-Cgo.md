@@ -2,8 +2,6 @@
 
 ### C? Go? Cgo!
 
-
-
 #### Introduction
 
 Cgo lets Go packages call C code. Given a Go source file written with some special features, cgo outputs Go and C files that can be combined into a single Go package.
@@ -32,34 +30,40 @@ The rand package imports "C", but you'll find there's no such package in the sta
 The rand package contains four references to the C package: the calls to C.random and C.srandom, the conversion C.uint(i), and the import statement.
 
 The Random function calls the standard C library's random function and returns the result. In C, random returns a value of the C type long, which cgo represents as the type C.long. It must be converted to a Go type before it can be used by Go code outside this package, using an ordinary Go type conversion:
->
+
+```  
 func Random() int {
     return int(C.random())
-}
+}  
+```
 
 Here's an equivalent function that uses a temporary variable to illustrate the type conversion more explicitly:
->
+
+```  
 func Random() int {
     var r C.long = C.random()
     return int(r)
-}
+}  
+```
 
 The Seed function does the reverse, in a way. It takes a regular Go int, converts it to the C unsigned int type, and passes it to the C function srandom.
->
+
+```  
 func Seed(i int) {
     C.srandom(C.uint(i))
-}
+}  
+```
 
 Note that cgo knows the unsigned int type as C.uint; see the cgo documentation for a complete list of these numeric type names.
 
 The one detail of this example we haven't examined yet is the comment above the import statement.
 
-```
+```  
 /*
  #include <stdlib.h>  
 */   
 import "C"
-```
+```  
 
 Cgo recognizes this comment. Any lines starting with #cgo followed by a space character are removed; these become directives for cgo. The remaining lines are used as a header when compiling the C parts of the package. In this case those lines are just a single #include statement, but they can be almost any C code. The #cgo directives are used to provide flags for the compiler and linker when building the C parts of the package.
 
@@ -78,16 +82,16 @@ This next example implements a Print function that writes a string to standard o
 package print
 
 ```  
- // #include <stdio.h>
- // #include <stdlib.h>
-import "C"
-import "unsafe"
+// #include <stdio.h>  
+// #include <stdlib.h>  
+import "C"  
+import "unsafe"  
 
 func Print(s string) {
     cs := C.CString(s)
     C.fputs(cs, (*C.FILE)(C.stdout))
     C.free(unsafe.Pointer(cs))
-}
+}  
 ```
 
 Memory allocations made by C code are not known to Go's memory manager. When you create a C string with C.CString (or any C memory allocation) you must remember to free the memory when you're done with it by calling C.free.
@@ -99,7 +103,7 @@ func Print(s string) {
     cs := C.CString(s)
     defer C.free(unsafe.Pointer(cs))
     C.fputs(cs, (*C.FILE)(C.stdout))
-}
+}  
 ```
 
 Building cgo packages
