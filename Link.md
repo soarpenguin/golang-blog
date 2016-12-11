@@ -17,3 +17,11 @@
  - https://golang.org/pkg/
 
  - https://github.com/tiancaiamao/go-internals
+ - https://github.com/astaxie/build-web-application-with-golang
+
+#### Golang project
+
+ - https://github.com/astaxie/beego
+ - https://github.com/docker/docker
+ - https://github.com/skynetservices/skynet
+ - https://github.com/coreos/etcd
